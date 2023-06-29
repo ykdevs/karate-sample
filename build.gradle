@@ -1,0 +1,49 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.2'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    id 'java'
+}
+
+ext {
+    karateVersion = '1.2.0'
+}
+
+dependencies {
+    testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation "com.intuit.karate:karate-junit5:${karateVersion}"
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+}
+
+sourceSets {
+    test {
+        resources {
+            srcDir file('src/test/java')
+            exclude '**/*.java'
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'karate.options', environment.get('KARATE_OPTIONS')
+    systemProperty 'karate.env', environment.get('KARATE_ENV')
+    systemProperty 'test.features', environment.get('TEST_FEATURES')
+
+    if (environment.containsKey('TEST_DATA')) {
+        systemProperty 'test.data', new String((environment.get('TEST_DATA') as String).decodeBase64())
+    }
+
+    outputs.upToDateWhen { false }
+}
+
+repositories {
+    mavenCentral()
+    // mavenLocal()
+}
+
+clean {
+    delete "${projectDir}/target"
+}
