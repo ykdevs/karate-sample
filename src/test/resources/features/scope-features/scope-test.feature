@@ -81,3 +81,21 @@ Feature: 変数のスコープテスト
     * match paramValues != orgParamValues
     # include先で定義した変数も参照できる
     * match newParamValues == orgParamValues
+
+  Scenario: ループで呼ぶ
+    * def paramValuesList = [{"key1": "value31", "key2": "value32", "key3": "value33"}, '#(paramValues)']
+    * call read('classpath:include/scope/scope-include2.feature') paramValuesList
+    # readだと上書きされてしまう
+    * print paramValues
+    * match paramValues != orgParamValues
+    # include先で定義した変数も参照できる
+    * match newParamValues == orgParamValues
+
+  Scenario: ループで呼ぶ
+    * def paramValuesList = [{"key1": "value31", "key2": "value32", "key3": "value33"}, '#(paramValues)']
+    * def result = call read('classpath:include/scope/scope-include2.feature') paramValuesList
+    # readだと上書きされない
+    * print paramValues
+    * match paramValues == orgParamValues
+    # include先で定義した変数も参照できない
+    * match karate.get('newParamValues') == undefined
